@@ -150,6 +150,25 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+			<groupId>org.pitest</groupId>
+			<artifactId>pitest-maven</artifactId>
+			<version>1.16.1</version>
+			<configuration>
+				<targetClasses>
+				<param>your.package.*</param>
+				</targetClasses>
+				<targetTests>
+				<param>your.package.*</param>
+				</targetTests>
+				<outputFormats>
+				<param>HTML</param>
+				<param>XML</param>
+				</outputFormats>
+			</configuration>
+			</plugin>
+
+
 		</plugins>
 	</build>
 
