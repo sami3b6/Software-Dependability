@@ -38,14 +38,21 @@ public class InstructorServicesImpl implements IInstructorServices{
         return instructorRepository.findById(numInstructor).orElse(null);
     }
 
+        /*@ requires instructor != null;
+      @ requires numCourse != null;
+      @ ensures \result != null;
+      @*/
     @Override
     public Instructor addInstructorAndAssignToCourse(Instructor instructor, Long numCourse) {
-        Course course = courseRepository.findById(numCourse).orElse(null);
+        Course course = courseRepository.findById(numCourse)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + numCourse));
+
         Set<Course> courseSet = new HashSet<>();
         courseSet.add(course);
         instructor.setCourses(courseSet);
         return instructorRepository.save(instructor);
     }
+
 
 
 }

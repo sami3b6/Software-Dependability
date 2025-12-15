@@ -156,10 +156,10 @@
 			<version>1.16.1</version>
 			<configuration>
 				<targetClasses>
-				<param>your.package.*</param>
+				<param>tn.esprit.spring.*</param>
 				</targetClasses>
 				<targetTests>
-				<param>your.package.*</param>
+				<param>tn.esprit.spring.*</param>
 				</targetTests>
 				<outputFormats>
 				<param>HTML</param>
@@ -167,7 +167,7 @@
 				</outputFormats>
 			</configuration>
 			</plugin>
-
+			
 
 		</plugins>
 	</build>
