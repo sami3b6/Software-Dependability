@@ -21,4 +21,4 @@ jobs:
           java-version: '21'
 
       - name: Build with Maven (wrapper)
-        run: ./mvnw -B clean verify
+        run: mvn -B clean verify
