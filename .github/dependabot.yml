@@ -1,6 +1,15 @@
+# .github/dependabot.yml
 version: 2
 updates:
-  - package-ecosystem: "maven"
-    directory: "/"
+  - package-ecosystem: "maven" # Or "npm", "pip", etc.
+    directory: "/"  # Location of your dependency file, e.g., "/" for the root directory
     schedule:
-      interval: "weekly"
+      interval: "weekly"  # Can be "daily", "weekly", "monthly"
+    ignore:
+      - dependency-name: "org.springframework.boot:spring-boot-starter-parent"
+        versions: ["2.6.x"] # Ignore updates for a specific version
+    commit-message:
+      prefix: "chore"  # Prefix for the commit message (e.g., "chore: update dependency")
+  
+    open-pull-requests-limit: 5  # Limit to how many open PRs Dependabot can have at once
+
