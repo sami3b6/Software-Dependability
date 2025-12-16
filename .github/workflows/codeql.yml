@@ -10,25 +10,22 @@ on:
 
 jobs:
   analyze:
-    name: Analyze
     runs-on: ubuntu-latest
-
     permissions:
       actions: read
       contents: read
       security-events: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: java
 
-      - name: Build project
+      - name: Build
         run: mvn -DskipTests clean compile
 
-      - name: Perform CodeQL Analysis
+      - name: Analyze
         uses: github/codeql-action/analyze@v3
