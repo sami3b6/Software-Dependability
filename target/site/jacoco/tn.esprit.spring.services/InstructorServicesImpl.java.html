@@ -38,14 +38,21 @@ public class InstructorServicesImpl implements IInstructorServices{
 <span class="nc" id="L38">        return instructorRepository.findById(numInstructor).orElse(null);</span>
     }
 
+        /*@ requires instructor != null;
+      @ requires numCourse != null;
+      @ ensures \result != null;
+      @*/
     @Override
     public Instructor addInstructorAndAssignToCourse(Instructor instructor, Long numCourse) {
-<span class="nc" id="L43">        Course course = courseRepository.findById(numCourse).orElse(null);</span>
-<span class="nc" id="L44">        Set&lt;Course&gt; courseSet = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L45">        courseSet.add(course);</span>
-<span class="nc" id="L46">        instructor.setCourses(courseSet);</span>
-<span class="nc" id="L47">        return instructorRepository.save(instructor);</span>
+<span class="nc" id="L47">        Course course = courseRepository.findById(numCourse)</span>
+<span class="nc" id="L48">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Course not found: &quot; + numCourse));</span>
+
+<span class="nc" id="L50">        Set&lt;Course&gt; courseSet = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L51">        courseSet.add(course);</span>
+<span class="nc" id="L52">        instructor.setCourses(courseSet);</span>
+<span class="nc" id="L53">        return instructorRepository.save(instructor);</span>
     }
+
 
 
 }

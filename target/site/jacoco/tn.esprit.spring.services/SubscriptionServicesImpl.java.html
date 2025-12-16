@@ -1,81 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SubscriptionServicesImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">gestion-station-ski</a> &gt; <a href="index.source.html" class="el_package">tn.esprit.spring.services</a> &gt; <span class="el_source">SubscriptionServicesImpl.java</span></div><h1>SubscriptionServicesImpl.java</h1><pre class="source lang-java linenums">package tn.esprit.spring.services;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import tn.esprit.spring.entities.Skier;
 import tn.esprit.spring.entities.Subscription;
 import tn.esprit.spring.entities.TypeSubscription;
 import tn.esprit.spring.repositories.ISkierRepository;
 import tn.esprit.spring.repositories.ISubscriptionRepository;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
-
-<span class="fc" id="L17">@Slf4j</span>
+<span class="nc" id="L16">@Slf4j</span>
 @AllArgsConstructor
 @Service
-public class SubscriptionServicesImpl implements ISubscriptionServices{
+public class SubscriptionServicesImpl implements ISubscriptionServices {
 
     private ISubscriptionRepository subscriptionRepository;
-
     private ISkierRepository skierRepository;
 
+    /*@
+      @ requires type != null;
+      @ requires start != null;
+      @ ensures type == TypeSubscription.ANNUAL     ==&gt; \result.equals(start.plusYears(1));
+      @ ensures type == TypeSubscription.SEMESTRIEL ==&gt; \result.equals(start.plusMonths(6));
+      @ ensures type == TypeSubscription.MONTHLY    ==&gt; \result.equals(start.plusMonths(1));
+      @*/
+    public static LocalDate computeEndDate(TypeSubscription type, LocalDate start) {
+<span class="nc bnc" id="L32" title="All 4 branches missed.">        switch (type) {</span>
+            case ANNUAL:
+<span class="nc" id="L34">                return start.plusYears(1);</span>
+            case SEMESTRIEL:
+<span class="nc" id="L36">                return start.plusMonths(6);</span>
+            case MONTHLY:
+<span class="nc" id="L38">                return start.plusMonths(1);</span>
+            default:
+                // unreachable if enum is only these values, but keeps Java happy
+<span class="nc" id="L41">                return start;</span>
+        }
+    }
+
+    /*@
+      @ requires subscription != null;
+      @ requires subscription.getTypeSub() != null;
+      @ requires subscription.getStartDate() != null;
+      @ ensures subscription.getEndDate() != null;
+      @ ensures subscription.getTypeSub() == TypeSubscription.ANNUAL
+      @      ==&gt; subscription.getEndDate().equals(subscription.getStartDate().plusYears(1));
+      @ ensures subscription.getTypeSub() == TypeSubscription.SEMESTRIEL
+      @      ==&gt; subscription.getEndDate().equals(subscription.getStartDate().plusMonths(6));
+      @ ensures subscription.getTypeSub() == TypeSubscription.MONTHLY
+      @      ==&gt; subscription.getEndDate().equals(subscription.getStartDate().plusMonths(1));
+      @*/
     @Override
     public Subscription addSubscription(Subscription subscription) {
-<span class="nc bnc" id="L28" title="All 4 branches missed.">        switch (subscription.getTypeSub()) {</span>
-            case ANNUAL:
-<span class="nc" id="L30">                subscription.setEndDate(subscription.getStartDate().plusYears(1));</span>
-<span class="nc" id="L31">                break;</span>
-            case SEMESTRIEL:
-<span class="nc" id="L33">                subscription.setEndDate(subscription.getStartDate().plusMonths(6));</span>
-<span class="nc" id="L34">                break;</span>
-            case MONTHLY:
-<span class="nc" id="L36">                subscription.setEndDate(subscription.getStartDate().plusMonths(1));</span>
-                break;
-        }
-<span class="nc" id="L39">        return subscriptionRepository.save(subscription);</span>
+<span class="nc" id="L59">        subscription.setEndDate(computeEndDate(subscription.getTypeSub(), subscription.getStartDate()));</span>
+<span class="nc" id="L60">        return subscriptionRepository.save(subscription);</span>
     }
 
     @Override
     public Subscription updateSubscription(Subscription subscription) {
-<span class="nc" id="L44">        return subscriptionRepository.save(subscription);</span>
+<span class="nc" id="L65">        return subscriptionRepository.save(subscription);</span>
     }
 
     @Override
     public Subscription retrieveSubscriptionById(Long numSubscription) {
-<span class="nc" id="L49">        return subscriptionRepository.findById(numSubscription).orElse(null);</span>
+<span class="nc" id="L70">        return subscriptionRepository.findById(numSubscription).orElse(null);</span>
     }
 
-    @Override
-    public Set&lt;Subscription&gt; getSubscriptionByType(TypeSubscription type) {
-<span class="nc" id="L54">        return subscriptionRepository.findByTypeSubOrderByStartDateAsc(type);</span>
-    }
-
-    @Override
-    public List&lt;Subscription&gt; retrieveSubscriptionsByDates(LocalDate startDate, LocalDate endDate) {
-<span class="nc" id="L59">        return subscriptionRepository.getSubscriptionsByStartDateBetween(startDate, endDate);</span>
-    }
-
-    @Override
-    @Scheduled(cron = &quot;*/30 * * * * *&quot;) /* Cron expression to run a job every 30 secondes */
-    public void retrieveSubscriptions() {
-<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (Subscription sub: subscriptionRepository.findDistinctOrderByEndDateAsc()) {</span>
-<span class="nc" id="L66">            Skier   aSkier = skierRepository.findBySubscription(sub);</span>
-<span class="nc" id="L67">            log.info(sub.getNumSub().toString() + &quot; | &quot;+ sub.getEndDate().toString()</span>
-<span class="nc" id="L68">                    + &quot; | &quot;+ aSkier.getFirstName() + &quot; &quot; + aSkier.getLastName());</span>
-<span class="nc" id="L69">        }</span>
-<span class="nc" id="L70">    }</span>
 
    // @Scheduled(cron = &quot;* 0 9 1 * *&quot;) /* Cron expression to run a job every month at 9am */
   //  @Scheduled(cron = &quot;*/30 * * * * *&quot;) /* Cron expression to run a job every 30 secondes */
     public void showMonthlyRecurringRevenue() {
-<span class="nc" id="L75">        Float revenue = subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.MONTHLY)</span>
-<span class="nc" id="L76">                + subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.SEMESTRIEL)/6</span>
-<span class="nc" id="L77">                + subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.ANNUAL)/12;</span>
-<span class="nc" id="L78">        log.info(&quot;Monthly Revenue = &quot; + revenue);</span>
-<span class="nc" id="L79">    }</span>
+<span class="nc" id="L77">        Float revenue = subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.MONTHLY)</span>
+<span class="nc" id="L78">                + subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.SEMESTRIEL)/6</span>
+<span class="nc" id="L79">                + subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.ANNUAL)/12;</span>
+<span class="nc" id="L80">        log.info(&quot;Monthly Revenue = &quot; + revenue);</span>
+<span class="nc" id="L81">    }</span>
+
+    @Override
+    public Set&lt;Subscription&gt; getSubscriptionByType(TypeSubscription type) {
+        // TODO Auto-generated method stub
+<span class="nc" id="L86">        throw new UnsupportedOperationException(&quot;Unimplemented method 'getSubscriptionByType'&quot;);</span>
+    }
+
+    @Override
+    public List&lt;Subscription&gt; retrieveSubscriptionsByDates(LocalDate startDate, LocalDate endDate) {
+        // TODO Auto-generated method stub
+<span class="nc" id="L92">        throw new UnsupportedOperationException(&quot;Unimplemented method 'retrieveSubscriptionsByDates'&quot;);</span>
+    }
+
+    @Override
+    public void retrieveSubscriptions() {
+        // TODO Auto-generated method stub
+<span class="nc" id="L98">        throw new UnsupportedOperationException(&quot;Unimplemented method 'retrieveSubscriptions'&quot;);</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
